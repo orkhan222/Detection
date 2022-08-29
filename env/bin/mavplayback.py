@@ -1,4 +1,4 @@
-#!/home/orkhan/Downloads/ArduCopter-main/env/bin/python3
+#!/home/orkhan/Desktop/DroneCode/env/bin/python3
 
 '''
 play back a mavlink log as a FlightGear FG NET stream, and as a

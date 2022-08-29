@@ -4,10 +4,13 @@ import time
 from pymavlink import mavutil
 iha = connect('127.0.0.1:14550',wait_ready= True)
 import cv2
+from time import gmtime, strftime 
 import numpy as np
 
 def nothing(x):
     pass
+
+
 
 
 def takeoff(irtifa):
@@ -21,6 +24,11 @@ def takeoff(irtifa):
     while iha.location.global_relative_frame.alt < irtifa *0.9:
         time.sleep(0.5)
         
+cap = cv2.VideoCapture(2)
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+file_name = strftime("%Y-%m-%d_%H-%M-%S", gmtime()) + ".avi"
+out = cv2.VideoWriter(file_name,fourcc, 25, (640,480))
+
            
 for i in range(1,4): 
     def gorev_ekle():
@@ -33,44 +41,50 @@ for i in range(1,4):
         komut.add(Command(0, 0, 0,mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0 , 0, 0, 0, -35.3629088, 149.1652568, 25))
         komut.add(Command(0, 0, 0,mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0 , 0, 0, 0, -35.3628596, 149.1651750, 25))
         
-        cap = cv2.VideoCapture(2)
-        cv2.namedWindow("Trackbars")
+        
+        # cap = cv2.VideoCapture(2)
+        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        # file_name = strftime("%Y-%m-%d_%H-%M-%S", gmtime()) + ".avi"
+        # out = cv2.VideoWriter(file_name,fourcc, 25, (640,480))
+            
+        while True: 
+            ret, frame = cap.read()
+            out.write(frame)
+            if ret == True:
+                # Filter red color
+                cv2.imshow("frame",frame)
+                frame = cv2.bilateralFilter(frame,9,75,75)
+                frame_hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+                mask1 = cv2.inRange(frame_hsv, (0, 70, 50), (10, 255, 255))
+                mask2 = cv2.inRange(frame_hsv, (165, 70, 50), (180, 255, 255))
+                mask = mask1 + mask2
+                white_pixels = np.where(mask==255)
+                cX = np.average(white_pixels[1])
+                cY = np.average(white_pixels[0])
+                
+                # Small noise elimination
+                if len(white_pixels[0]) > 5000:
+                    # Object location detection
+                    img = np.zeros((480,640,1),np.uint8)    
+                    cv2.circle(img, (int(cX),int(cY)), 85, (255,255,255), thickness=-1, lineType=8, shift=0)
+                    intersection = cv2.bitwise_and(img,mask)
+                    intersection_length = np.where(intersection==255)
 
-        cv2.createTrackbar("L - H", "Trackbars", 0, 179, nothing)
-        cv2.createTrackbar("L - S", "Trackbars", 0, 255, nothing)
-        cv2.createTrackbar("L - V", "Trackbars", 0, 255, nothing)
-        cv2.createTrackbar("U - H", "Trackbars", 179, 179, nothing)
-        cv2.createTrackbar("U - S", "Trackbars", 255, 255, nothing)
-        cv2.createTrackbar("U - V", "Trackbars", 255, 255, nothing)
+                    if len(intersection_length[0]) > 5000:
+                        intersection_cX= np.average(intersection_length[1])
+                        intersection_cY= np.average(intersection_length[0])
+                        cv2.imshow("intersection", intersection)
+                        x = intersection_cX-320
+                        y = 240-intersection_cY
 
-        while True:
-            _, frame = cap.read()
-            hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    break
+
+
+                cap.release()
+                out.release()
+                cv2.destroyAllWindows()
             
-            l_h = cv2.getTrackbarPos("L - H", "Trackbars")
-            l_s = cv2.getTrackbarPos("L - S", "Trackbars")
-            l_v = cv2.getTrackbarPos("L - V", "Trackbars")
-            u_h = cv2.getTrackbarPos("U - H", "Trackbars")
-            u_s = cv2.getTrackbarPos("U - S", "Trackbars")
-            u_v = cv2.getTrackbarPos("U - V", "Trackbars")
-            
-            lower_blue = np.array([l_h, l_s, l_v])
-            upper_blue = np.array([u_h, u_s, u_v])
-            mask = cv2.inRange(hsv, lower_blue, upper_blue)
-            
-            result = cv2.bitwise_and(frame, frame, mask=mask)
-            
-            cv2.imshow("frame", frame)
-            cv2.imshow("mask", mask)
-            cv2.imshow("result", result)
-            
-            key = cv2.waitKey(1) & 0xFF
-            if key == ord("q"):
-                break
-            
-            
-        cap.release()
-        cv2.destroyAllWindows()
         komut.add(Command(0, 0, 0,mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0 , 0, 0, 0, -35.3629088, 149.1651106, 25))
         komut.add(Command(0, 0, 0,mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0 , 0, 0, 0, -35.3631691, 149.1651455, 25))
         komut.add(Command(0, 0, 0,mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0 , 0, 0, 0, -35.3631877, 149.1652206, 25))

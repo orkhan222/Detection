@@ -1,4 +1,4 @@
-#!/home/orkhan/Downloads/ArduCopter-main/env/bin/python3
+#!/home/orkhan/Desktop/DroneCode/env/bin/python3
 
 '''
 example program to extract GPS data from a mavlink log, and create a GPX

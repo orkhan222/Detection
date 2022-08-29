@@ -1,4 +1,4 @@
-#!/home/orkhan/Downloads/ArduCopter-main/env/bin/python3
+#!/home/orkhan/Desktop/DroneCode/env/bin/python3
 
 '''
 Summarize MAVLink logs. Useful for identifying which log is of interest in a large set.

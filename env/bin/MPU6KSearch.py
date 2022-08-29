@@ -1,4 +1,4 @@
-#!/home/orkhan/Downloads/ArduCopter-main/env/bin/python3
+#!/home/orkhan/Desktop/DroneCode/env/bin/python3
 
 '''
 search a set of log files for signs of inconsistent IMU data

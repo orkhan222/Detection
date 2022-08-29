@@ -1,4 +1,4 @@
-#!/home/orkhan/Downloads/ArduCopter-main/env/bin/python3
+#!/home/orkhan/Desktop/DroneCode/env/bin/python3
 
 '''
 extract one mode type from a log

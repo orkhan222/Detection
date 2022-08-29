@@ -1,4 +1,4 @@
-#!/home/orkhan/Downloads/ArduCopter-main/env/bin/python3
+#!/home/orkhan/Desktop/DroneCode/env/bin/python3
 
 '''
 fit best estimate of magnetometer offsets, diagonals, off-diagonals, cmot and scaling using WMM target
